@@ -4,7 +4,7 @@ This Minecraft Fabric mod extends the autocompletion for id arguments in command
 for completing ids only up to a certain segment.
 
 For example, if you have many functions under `namespace:folder_name/`, you can now
-complete only the `namespace:folder_name/` part instead of having to directly complete to
+complete only the `namespace:folder_name/` part instead of having to directly complete the
 full function id.
 
 ## Download
