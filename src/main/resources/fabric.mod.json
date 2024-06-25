@@ -1,0 +1,31 @@
+{
+	"schemaVersion": 1,
+	"id": "partial_id_autocomplete",
+	"version": "${version}",
+	"name": "PartialIdAutocomplete",
+	"description": "Allows autocompleting id argument segments individually",
+	"authors": [
+		"Papierkorb2292"
+	],
+	"license": "CC0-1.0",
+	"icon": "assets/partial_id_autocomplete/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"net.papierkorb2292.partial_id_autocomplete.PartialIdAutocomplete"
+		]
+	},
+	"mixins": [
+		"partial_id_autocomplete.mixins.json",
+        {
+          "config": "partial_id_autocomplete.client.mixins.json",
+          "environment": "client"
+        }
+	],
+	"depends": {
+		"fabricloader": ">=0.15.0",
+		"minecraft": "1.21.x",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
