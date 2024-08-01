@@ -2,7 +2,9 @@ package net.papierkorb2292.partial_id_autocomplete.client;
 
 import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.datafixers.util.Either;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -79,9 +81,11 @@ public final class PartialIdGenerator {
             if(potentialPartialIds.size() < inputSegmentCount)
                 continue;
             final var potentialPartialId = potentialPartialIds.get(inputSegmentCount - 1);
+            final var onlyChildMapperResolved = onlyChildMapper.getOnlyChildOrSelf(potentialPartialId);
+            if(onlyChildMapperResolved == null) continue;
             result.add(new Suggestion(
                     originalSuggestions.getRange(),
-                    onlyChildMapper.getOnlyChildOrSelf(potentialPartialId)
+                    onlyChildMapperResolved
             ));
         }
         return result;
@@ -100,9 +104,11 @@ public final class PartialIdGenerator {
 
         final var result = new ArrayList<Suggestion>();
         for(final var partialId : partialIds) {
+            var onlyChildMapperResolved = onlyChildMapper.getOnlyChildOrSelf(partialId);
+            if(onlyChildMapperResolved == null) continue;
             result.add(new Suggestion(
                     originalSuggestions.getRange(),
-                    onlyChildMapper.getOnlyChildOrSelf(partialId)
+                    onlyChildMapperResolved
             ));
         }
         return result;
@@ -118,31 +124,35 @@ public final class PartialIdGenerator {
     }
 
     private static class OnlyChildMapper {
-        private final Map<String, String> onlyChildMap = new HashMap<>();
+        private final Map<String, Either<ParentState, String>> onlyChildMap = new HashMap<>();
 
         public void addPotentialPartialIds(List<String> potentialPartialIds) {
-            for (int i = potentialPartialIds.size() - 1; i >= 0; i--) {
+            onlyChildMap.put(potentialPartialIds.getLast(), Either.left(ParentState.HIDE));
+            for (int i = potentialPartialIds.size() - 2; i >= 0; i--) {
                 final var potentialPartialId = potentialPartialIds.get(i);
                 if(onlyChildMap.containsKey(potentialPartialId)) {
-                    onlyChildMap.put(potentialPartialId, null);
+                    onlyChildMap.put(potentialPartialId, Either.left(ParentState.SHOW));
                     break;
                 }
-                if(i == potentialPartialIds.size() - 1) {
-                    onlyChildMap.put(potentialPartialId, null);
-                    continue;
-                }
-                onlyChildMap.put(potentialPartialId, potentialPartialIds.get(i + 1));
+                onlyChildMap.put(potentialPartialId, Either.right(potentialPartialIds.get(i + 1)));
             }
         }
 
+        @Nullable
         public String getOnlyChildOrSelf(String potentialPartialId) {
-            var parent = potentialPartialId;
-            while(true){
-                var onlyChild = onlyChildMap.get(parent);
-                if(onlyChild == null)
-                    return parent;
-                parent = onlyChild;
-            }
+            var onlyChild = onlyChildMap.get(potentialPartialId);
+            return onlyChild.map(
+                    parentState -> {
+                        if(parentState == ParentState.HIDE)
+                            return null;
+                        return potentialPartialId;
+                    },
+                    this::getOnlyChildOrSelf
+            );
+        }
+
+        private enum ParentState {
+            SHOW, HIDE
         }
     }
 }
