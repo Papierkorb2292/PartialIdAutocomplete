@@ -3,7 +3,6 @@ package net.papierkorb2292.partial_id_autocomplete.client;
 import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
 import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -38,11 +37,16 @@ public final class PartialIdGenerator {
 
     public Suggestions getCompleteSuggestions(String currentInput) {
         final var completeSuggestionList = new ArrayList<>(originalSuggestions.getList());
+        final Collection<Suggestion> partialSuggestions;
         if(PartialIdAutocomplete.config.getOnlySuggestNextSignificantSegments()) {
-            completeSuggestionList.addAll(0, getPartialIdsOnlyNextSegment(currentInput));
+            partialSuggestions = getPartialIdsOnlyNextSegment(currentInput);
         } else {
-            completeSuggestionList.addAll(0, getPartialIdsAllSegments());
+            partialSuggestions = getPartialIdsAllSegments();
         }
+        for(final var partialSuggestion : partialSuggestions) {
+            ((IsPartialIdSuggestionContainer)partialSuggestion).partial_id_autocomplete$setIsPartialIdSuggestion(true);
+        }
+        completeSuggestionList.addAll(0, partialSuggestions);
         return new Suggestions(originalSuggestions.getRange(), completeSuggestionList);
     }
 
