@@ -101,8 +101,11 @@ public class PartialIdAutocompleteConfig {
 
     public static PartialIdAutocompleteConfig loadFromFile(Path path) {
         final var file = path.toFile();
-        if(!file.exists())
-            return new PartialIdAutocompleteConfig(configDefaults, path);
+        if(!file.exists()) {
+            final var config = new PartialIdAutocompleteConfig(configDefaults, path);
+            config.saveToFile(path);
+            return config;
+        }
         try(var reader = new FileReader(file)) {
             final var properties = new Properties(configDefaults);
             properties.load(reader);
