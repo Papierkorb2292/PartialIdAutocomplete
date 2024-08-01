@@ -1,92 +1,144 @@
 package net.papierkorb2292.partial_id_autocomplete.client;
 
+import com.mojang.brigadier.suggestion.Suggestion;
+import com.mojang.brigadier.suggestion.Suggestions;
 import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-public final class PartialIdGenerator implements Iterable<Identifier> {
+public final class PartialIdGenerator {
 
-    private final Iterable<Identifier> originalIds;
+    private final Suggestions originalSuggestions;
 
-    public PartialIdGenerator(Iterable<Identifier> originalIds) {
-        this.originalIds = originalIds;
+    public PartialIdGenerator(Suggestions originalSuggestions) {
+        this.originalSuggestions = originalSuggestions;
     }
 
-    private Iterable<Identifier> getPotentialPartialIds(Identifier id) {
-        return () -> new Iterator<>() {
-            private final String[] parts = id.getPath().split("/");
-            private int partIndex = 0;
-
-            @Override
-            public boolean hasNext() {
-                return partIndex <= parts.length;
-            }
-
-            @Override
-            public Identifier next() {
-                final var isOnlyNamespace = partIndex == 0;
-                final var joinedSegments = Arrays.stream(parts)
-                        .limit(partIndex++)
-                        .collect(Collectors.joining("/"));
-                if (isOnlyNamespace) {
-                    return Identifier.of(
-                            id.getNamespace(),
-                            joinedSegments
-                    );
-                }
-                return Identifier.of(
-                        id.getNamespace(),
-                        joinedSegments + '/'
-                );
-            }
-        };
+    private List<String> getPotentialPartialIds(String suggestion) {
+        final var segmentNames = suggestion.splitWithDelimiters(PartialIdAutocomplete.config.getIdSegmentSeparatorRegex(), 0);
+        final var segmentCount = segmentNames.length / 2 + (segmentNames.length & 1);
+        final var parts = new String[segmentCount];
+        for (int i = 0; i < segmentCount; i++) {
+            final var partIndex = i * 2;
+            if(partIndex == segmentNames.length - 1)
+                parts[i] = segmentNames[partIndex];
+            else
+                parts[i] = segmentNames[partIndex] + segmentNames[partIndex + 1];
+        }
+        return IntStream.range(1, parts.length)
+                .mapToObj(i ->
+                        Arrays.stream(parts)
+                            .limit(i)
+                            .collect(Collectors.joining()))
+                .collect(Collectors.toList());
     }
 
-    @NotNull
-    @Override
-    public Iterator<Identifier> iterator() {
-        final Set<Identifier> potentialPartialIds = new HashSet<>();
-        final Set<Identifier> queuedPartialIds = new HashSet<>();
-        final var originalIdsIterator = originalIds.iterator(); 
-        return new Iterator<>() {
-            @Nullable
-            private Iterator<Identifier> partialIdSuggestions = null;
-            
-            private Iterator<Identifier> getOrCreatePartialIdSuggestions() {
-                if(partialIdSuggestions == null)
-                    partialIdSuggestions = queuedPartialIds.iterator();
-                return partialIdSuggestions;
-            }
-            
-            @Override
-            public boolean hasNext() {
-                if(originalIdsIterator.hasNext()) {
-                    return true;
-                }
-                return getOrCreatePartialIdSuggestions().hasNext();
-            }
+    public Suggestions getCompleteSuggestions(String currentInput) {
+        final var completeSuggestionList = new ArrayList<>(originalSuggestions.getList());
+        if(PartialIdAutocomplete.config.getOnlySuggestNextSignificantSegments()) {
+            completeSuggestionList.addAll(0, getPartialIdsOnlyNextSegment(currentInput));
+        } else {
+            completeSuggestionList.addAll(0, getPartialIdsAllSegments());
+        }
+        return new Suggestions(originalSuggestions.getRange(), completeSuggestionList);
+    }
 
-            @Override
-            public Identifier next() {
-                if(originalIdsIterator.hasNext()) {
-                    final var id = originalIdsIterator.next();
-                    for(final var partialId : getPotentialPartialIds(id)) {
-                        // A partial id needs to appear twice to be suggested, otherwise there's no
-                        // point in partial completion when only one id uses the path
-                        if(!potentialPartialIds.add(partialId)) {
-                            queuedPartialIds.add(partialId);
-                        }
-                    }
-                    return id;
-                }
-                return getOrCreatePartialIdSuggestions().next();
+    private Collection<Suggestion> getPartialIdsOnlyNextSegment(String currentInput) {
+        if(originalSuggestions.getList().size() <= 1)
+            return Collections.emptyList();
+
+        final var inputSegmentCount = Math.max(
+                1,
+                Math.ceilDiv(
+                        currentInput.splitWithDelimiters(PartialIdAutocomplete.config.getIdSegmentSeparatorRegex(), 0).length + 1,
+                        2
+                )
+        );
+
+        final List<List<String>> potentialPartialIdsList = new ArrayList<>();
+        final var onlyChildMapper = new OnlyChildMapper();
+
+        for(final var idSuggestion : originalSuggestions.getList()) {
+            final var potentialPartialIds = getPotentialPartialIds(idSuggestion.getText());
+            potentialPartialIdsList.add(potentialPartialIds);
+
+            if(PartialIdAutocomplete.config.getCollapseSingleChildNodes()) {
+                onlyChildMapper.addPotentialPartialIds(potentialPartialIds);
             }
-        };
+        }
+
+        final var result = new LinkedHashSet<Suggestion>();
+        for(final var potentialPartialIds : potentialPartialIdsList) {
+            if(potentialPartialIds.size() < inputSegmentCount)
+                continue;
+            final var potentialPartialId = potentialPartialIds.get(inputSegmentCount - 1);
+            result.add(new Suggestion(
+                    originalSuggestions.getRange(),
+                    onlyChildMapper.getOnlyChildOrSelf(potentialPartialId)
+            ));
+        }
+        return result;
+    }
+
+    private Collection<Suggestion> getPartialIdsAllSegments() {
+        final var partialIds = new LinkedHashSet<String>();
+        final var onlyChildMapper = new OnlyChildMapper();
+        for(final var idSuggestion : originalSuggestions.getList()) {
+            final var potentialPartialIds = getPotentialPartialIds(idSuggestion.getText());
+            if(PartialIdAutocomplete.config.getCollapseSingleChildNodes()) {
+                onlyChildMapper.addPotentialPartialIds(potentialPartialIds);
+            }
+            partialIds.addAll(potentialPartialIds);
+        }
+
+        final var result = new ArrayList<Suggestion>();
+        for(final var partialId : partialIds) {
+            result.add(new Suggestion(
+                    originalSuggestions.getRange(),
+                    onlyChildMapper.getOnlyChildOrSelf(partialId)
+            ));
+        }
+        return result;
+    }
+
+    public static boolean areSuggestionsIds(Suggestions suggestions) {
+        return suggestions.getList().stream().allMatch(suggestion -> {
+           final var colonIndex = suggestion.getText().indexOf(':');
+           if(colonIndex == -1)
+               return false;
+           return Identifier.isNamespaceValid(suggestion.getText().substring(0, colonIndex)) && Identifier.isPathValid(suggestion.getText().substring(colonIndex + 1));
+        });
+    }
+
+    private static class OnlyChildMapper {
+        private final Map<String, String> onlyChildMap = new HashMap<>();
+
+        public void addPotentialPartialIds(List<String> potentialPartialIds) {
+            for (int i = potentialPartialIds.size() - 1; i >= 0; i--) {
+                final var potentialPartialId = potentialPartialIds.get(i);
+                if(onlyChildMap.containsKey(potentialPartialId)) {
+                    onlyChildMap.put(potentialPartialId, null);
+                    break;
+                }
+                if(i == potentialPartialIds.size() - 1) {
+                    onlyChildMap.put(potentialPartialId, null);
+                    continue;
+                }
+                onlyChildMap.put(potentialPartialId, potentialPartialIds.get(i + 1));
+            }
+        }
+
+        public String getOnlyChildOrSelf(String potentialPartialId) {
+            var parent = potentialPartialId;
+            while(true){
+                var onlyChild = onlyChildMap.get(parent);
+                if(onlyChild == null)
+                    return parent;
+                parent = onlyChild;
+            }
+        }
     }
 }
