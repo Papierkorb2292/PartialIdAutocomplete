@@ -127,7 +127,11 @@ public final class PartialIdGenerator {
         private final Map<String, Either<ParentState, String>> onlyChildMap = new HashMap<>();
 
         public void addPotentialPartialIds(List<String> potentialPartialIds) {
-            onlyChildMap.put(potentialPartialIds.getLast(), Either.left(ParentState.HIDE));
+            final var last = potentialPartialIds.getLast();
+            if(!onlyChildMap.containsKey(last))
+                onlyChildMap.put(last, Either.left(ParentState.HIDE));
+            else
+                onlyChildMap.put(last, Either.left(ParentState.SHOW));
             for (int i = potentialPartialIds.size() - 2; i >= 0; i--) {
                 final var potentialPartialId = potentialPartialIds.get(i);
                 if(onlyChildMap.containsKey(potentialPartialId)) {
@@ -141,6 +145,7 @@ public final class PartialIdGenerator {
         @Nullable
         public String getOnlyChildOrSelf(String potentialPartialId) {
             var onlyChild = onlyChildMap.get(potentialPartialId);
+            if(onlyChild == null) return potentialPartialId;
             return onlyChild.map(
                     parentState -> {
                         if(parentState == ParentState.HIDE)
