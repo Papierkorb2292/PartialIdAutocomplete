@@ -40,7 +40,7 @@ public final class PartialIdGenerator {
     public Suggestions getCompleteSuggestions(String currentInput) {
         final var completeSuggestionList = new ArrayList<>(originalSuggestions.getList());
         final Collection<Suggestion> partialSuggestions;
-        if(PartialIdAutocomplete.config.getOnlySuggestNextSignificantSegments()) {
+        if(PartialIdAutocomplete.config.getOnlySuggestNextSegments()) {
             partialSuggestions = getPartialIdsOnlyNextSegment(currentInput);
         } else {
             partialSuggestions = getPartialIdsAllSegments();

@@ -2,5 +2,5 @@
   "partial_id_autocomplete.config.title": "Partial ID Autocomplete Config",
   "partial_id_autocomplete.config.id_segment_separator_regex": "ID Segment Separator Regex",
   "partial_id_autocomplete.config.collapse_single_child_nodes": "Collapse Single Child Nodes",
-  "partial_id_autocomplete.config.only_suggest_next_significant_segments": "Only Suggest Next Significant Segments"
+  "partial_id_autocomplete.config.only_suggest_next_segments": "Only Suggest Next Segments"
 }

@@ -12,24 +12,24 @@ public class PartialIdAutocompleteConfig {
 
     private static final String ID_SEGMENT_SEPARATOR_REGEX_NAME = "id-segment-separator-regex";
     private static final String COLLAPSE_SINGLE_CHILD_NODES_NAME = "collapse-single-child-nodes";
-    private static final String ONLY_SUGGEST_NEXT_SIGNIFICANT_SEGMENTS_NAME = "only-suggest-next-significant-segments";
+    private static final String ONLY_SUGGEST_NEXT_SEGMENTS_NAME = "only-suggest-next-segments";
     private static final Properties configDefaults = new Properties();
     static {
         configDefaults.setProperty(ID_SEGMENT_SEPARATOR_REGEX_NAME, "[/:.]");
         configDefaults.setProperty(COLLAPSE_SINGLE_CHILD_NODES_NAME, "true");
-        configDefaults.setProperty(ONLY_SUGGEST_NEXT_SIGNIFICANT_SEGMENTS_NAME, "true");
+        configDefaults.setProperty(ONLY_SUGGEST_NEXT_SEGMENTS_NAME, "true");
     }
 
     private String idSegmentSeparatorRegex;
     private boolean collapseSingleChildNodes;
-    private boolean onlySuggestNextSignificantSegments;
+    private boolean onlySuggestNextSegments;
 
     private final Path configPath;
 
     private PartialIdAutocompleteConfig(Properties properties, Path configPath) {
         idSegmentSeparatorRegex = properties.getProperty(ID_SEGMENT_SEPARATOR_REGEX_NAME);
         collapseSingleChildNodes = Boolean.parseBoolean(properties.getProperty(COLLAPSE_SINGLE_CHILD_NODES_NAME));
-        onlySuggestNextSignificantSegments = Boolean.parseBoolean(properties.getProperty(ONLY_SUGGEST_NEXT_SIGNIFICANT_SEGMENTS_NAME));
+        onlySuggestNextSegments = Boolean.parseBoolean(properties.getProperty(ONLY_SUGGEST_NEXT_SEGMENTS_NAME));
         this.configPath = configPath;
     }
 
@@ -49,11 +49,11 @@ public class PartialIdAutocompleteConfig {
         saveToFile(configPath);
     }
 
-    public boolean getOnlySuggestNextSignificantSegments() {
-        return onlySuggestNextSignificantSegments;
+    public boolean getOnlySuggestNextSegments() {
+        return onlySuggestNextSegments;
     }
-    public void setOnlySuggestNextSignificantSegments(boolean onlySuggestNextSignificantSegments) {
-        this.onlySuggestNextSignificantSegments = onlySuggestNextSignificantSegments;
+    public void setOnlySuggestNextSegments(boolean onlySuggestNextSegments) {
+        this.onlySuggestNextSegments = onlySuggestNextSegments;
         saveToFile(configPath);
     }
 
@@ -73,9 +73,9 @@ public class PartialIdAutocompleteConfig {
                     this::setCollapseSingleChildNodes
             ),
             SimpleOption.ofBoolean(
-                    convertNameToTranslationKey(ONLY_SUGGEST_NEXT_SIGNIFICANT_SEGMENTS_NAME),
-                    getOnlySuggestNextSignificantSegments(),
-                    this::setOnlySuggestNextSignificantSegments
+                    convertNameToTranslationKey(ONLY_SUGGEST_NEXT_SEGMENTS_NAME),
+                    getOnlySuggestNextSegments(),
+                    this::setOnlySuggestNextSegments
             )
         };
     }
@@ -88,7 +88,7 @@ public class PartialIdAutocompleteConfig {
         final var properties = new Properties();
         properties.setProperty(ID_SEGMENT_SEPARATOR_REGEX_NAME, idSegmentSeparatorRegex);
         properties.setProperty(COLLAPSE_SINGLE_CHILD_NODES_NAME, Boolean.toString(collapseSingleChildNodes));
-        properties.setProperty(ONLY_SUGGEST_NEXT_SIGNIFICANT_SEGMENTS_NAME, Boolean.toString(onlySuggestNextSignificantSegments));
+        properties.setProperty(ONLY_SUGGEST_NEXT_SEGMENTS_NAME, Boolean.toString(onlySuggestNextSegments));
         try(var writer = new java.io.FileWriter(path.toFile())) {
             properties.store(writer, "Partial ID Autocomplete Config");
         } catch (java.io.IOException e) {
