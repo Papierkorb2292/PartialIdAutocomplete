@@ -45,10 +45,6 @@ public class SimpleOptionStringCallbacks implements SimpleOption.Callbacks<Strin
                     Text.literal("Regex input")
             );
             textInput.setText(option.getValue());
-            textInput.setChangedListener(newText -> {
-                option.setValue(newText);
-                changeCallback.accept(newText);
-            });
             final var label = new TextWidget(
                     0,
                     0,
@@ -57,7 +53,7 @@ public class SimpleOptionStringCallbacks implements SimpleOption.Callbacks<Strin
                     ((SimpleOptionAccessor)(Object)option).getText(),
                     MinecraftClient.getInstance().textRenderer
             );
-            return new ContainerWidget(x, y, width, 20, Text.literal("")) {
+            final var container = new ContainerWidget(x, y, width, 20, Text.literal("")) {
                 @Override
                 public List<? extends Element> children() {
                     return List.of(label, textInput);
@@ -88,6 +84,13 @@ public class SimpleOptionStringCallbacks implements SimpleOption.Callbacks<Strin
                     super.setY(y);
                 }
             };
+            container.setTooltip(tooltipFactory.apply(option.getValue()));
+            textInput.setChangedListener(newText -> {
+                option.setValue(newText);
+                changeCallback.accept(newText);
+                container.setTooltip(tooltipFactory.apply(newText));
+            });
+            return container;
         };
     }
 

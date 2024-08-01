@@ -1,5 +1,6 @@
 package net.papierkorb2292.partial_id_autocomplete.client;
 
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.option.SimpleOption;
 import net.minecraft.text.Text;
 
@@ -61,7 +62,7 @@ public class PartialIdAutocompleteConfig {
         return new SimpleOption<?>[] {
             new SimpleOption<>(
                     convertNameToTranslationKey(ID_SEGMENT_SEPARATOR_REGEX_NAME),
-                    SimpleOption.emptyTooltip(),
+                    value -> Tooltip.of(Text.translatable(convertNameToTranslationKey(ID_SEGMENT_SEPARATOR_REGEX_NAME) + ".description")),
                     (option, value) -> Text.literal(value),
                     SimpleOptionStringCallbacks.INSTANCE,
                     getIdSegmentSeparatorRegex(),
@@ -69,11 +70,13 @@ public class PartialIdAutocompleteConfig {
             ),
             SimpleOption.ofBoolean(
                     convertNameToTranslationKey(COLLAPSE_SINGLE_CHILD_NODES_NAME),
+                    value -> Tooltip.of(Text.translatable(convertNameToTranslationKey(COLLAPSE_SINGLE_CHILD_NODES_NAME) + ".description")),
                     getCollapseSingleChildNodes(),
                     this::setCollapseSingleChildNodes
             ),
             SimpleOption.ofBoolean(
                     convertNameToTranslationKey(ONLY_SUGGEST_NEXT_SEGMENTS_NAME),
+                    value -> Tooltip.of(Text.translatable(convertNameToTranslationKey(ONLY_SUGGEST_NEXT_SEGMENTS_NAME) + ".description")),
                     getOnlySuggestNextSegments(),
                     this::setOnlySuggestNextSegments
             )
