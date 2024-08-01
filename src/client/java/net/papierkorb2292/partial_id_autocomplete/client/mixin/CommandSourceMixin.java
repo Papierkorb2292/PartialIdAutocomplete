@@ -1,8 +1,8 @@
-package net.papierkorb2292.partial_id_autocomplete.mixin;
+package net.papierkorb2292.partial_id_autocomplete.client.mixin;
 
 import net.minecraft.command.CommandSource;
 import net.minecraft.util.Identifier;
-import net.papierkorb2292.partial_id_autocomplete.PartialIdGenerator;
+import net.papierkorb2292.partial_id_autocomplete.client.PartialIdGenerator;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;

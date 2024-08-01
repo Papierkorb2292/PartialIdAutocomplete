@@ -2,7 +2,10 @@
   "required": true,
   "package": "net.papierkorb2292.partial_id_autocomplete.client.mixin",
   "compatibilityLevel": "JAVA_17",
-  "client": [ ],
+  "client": [
+    "CommandSourceMixin",
+    "SimpleOptionAccessor"
+  ],
   "injectors": {
     "defaultRequire": 1
   }

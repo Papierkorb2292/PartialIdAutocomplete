@@ -1,4 +1,4 @@
-package net.papierkorb2292.partial_id_autocomplete;
+package net.papierkorb2292.partial_id_autocomplete.client;
 
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;

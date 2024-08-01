@@ -7,12 +7,19 @@
 	"authors": [
 		"Papierkorb2292"
 	],
+	"contact": {
+		"sources": "https://github.com/Papierkorb2292/PartialIdAutocomplete",
+		"issues": "https://github.com/Papierkorb2292/PartialIdAutocomplete/issues"
+	},
 	"license": "CC0-1.0",
 	"icon": "assets/partial_id_autocomplete/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"net.papierkorb2292.partial_id_autocomplete.PartialIdAutocomplete"
+			"net.papierkorb2292.partial_id_autocomplete.client.PartialIdAutocomplete"
+		],
+		"modmenu": [
+			"net.papierkorb2292.partial_id_autocomplete.client.PartialIdAutocompleteModMenu"
 		]
 	},
 	"mixins": [
@@ -27,5 +34,6 @@
 		"minecraft": "1.21.x",
 		"java": ">=21",
 		"fabric-api": "*"
-	}
+	},
+	"accessWidener": "partial_id_autocomplete.accesswidener"
 }
