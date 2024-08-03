@@ -119,7 +119,15 @@ public final class PartialIdGenerator {
            final var colonIndex = suggestion.getText().indexOf(':');
            if(colonIndex == -1)
                return false;
-           return Identifier.isNamespaceValid(suggestion.getText().substring(0, colonIndex)) && Identifier.isPathValid(suggestion.getText().substring(colonIndex + 1));
+           if(!Identifier.isPathValid(suggestion.getText().substring(colonIndex + 1)))
+               return false;
+           final var beforeColon = suggestion.getText().substring(0, colonIndex);
+           final String namespace;
+           if(beforeColon.startsWith("#"))
+                namespace = beforeColon.substring(1);
+           else
+                namespace = beforeColon;
+           return Identifier.isNamespaceValid(namespace);
         });
     }
 
