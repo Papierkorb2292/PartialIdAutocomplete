@@ -130,8 +130,10 @@ public final class PartialIdGenerator {
             final var last = potentialPartialIds.getLast();
             if(!onlyChildMap.containsKey(last))
                 onlyChildMap.put(last, Either.left(ParentState.HIDE));
-            else
+            else {
                 onlyChildMap.put(last, Either.left(ParentState.SHOW));
+                return;
+            }
             for (int i = potentialPartialIds.size() - 2; i >= 0; i--) {
                 final var potentialPartialId = potentialPartialIds.get(i);
                 if(onlyChildMap.containsKey(potentialPartialId)) {
