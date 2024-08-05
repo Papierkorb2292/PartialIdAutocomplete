@@ -19,7 +19,7 @@ public final class PartialIdGenerator {
     }
 
     private List<String> getPotentialPartialIds(String suggestion) {
-        final var segmentNames = suggestion.splitWithDelimiters(PartialIdAutocomplete.config.getIdSegmentSeparatorRegex(), 0);
+        final var segmentNames = suggestion.splitWithDelimiters(PartialIdAutocomplete.config.getIdSegmentSeparatorRegex(), -1);
         final var segmentCount = segmentNames.length / 2 + (segmentNames.length & 1);
         final var parts = new String[segmentCount];
         for (int i = 0; i < segmentCount; i++) {
