@@ -9,7 +9,9 @@ full function id.
 
 ## Download
 
-You can download this mod from the Github Release (https://github.com/Papierkorb2292/PartialIdAutocomplete/releases/latest)
+You can download this mod on Modrinth (https://modrinth.com/mod/partialidautocomplete),
+Curseforge (https://www.curseforge.com/minecraft/mc-mods/partialidautocomplete)
+or from the Github Release (https://github.com/Papierkorb2292/PartialIdAutocomplete/releases/latest)
 
 Alternatively, you can build the mod yourself by downloading this repository
 and running `./gradlew build` in the root directory. The built mod will appear in `build/libs`.
