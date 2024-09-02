@@ -38,6 +38,9 @@ public class PartialIdAutocompleteConfig {
         onlySuggestNextSegments = Boolean.parseBoolean(properties.getProperty(ONLY_SUGGEST_NEXT_SEGMENTS_NAME));
         this.configPath = configPath;
         this.modVersion = modVersion;
+        if(configVersion != null && !configVersion.equals(modVersion)) {
+            saveToFile(configPath);
+        }
     }
 
     public String getIdSegmentSeparatorRegex() {
