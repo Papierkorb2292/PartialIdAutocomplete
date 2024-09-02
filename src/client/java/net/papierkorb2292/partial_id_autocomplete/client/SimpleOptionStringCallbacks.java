@@ -44,6 +44,7 @@ public class SimpleOptionStringCallbacks implements SimpleOption.Callbacks<Strin
                     20,
                     Text.literal("Regex input")
             );
+            textInput.setMaxLength(128);
             textInput.setText(option.getValue());
             final var label = new TextWidget(
                     0,
