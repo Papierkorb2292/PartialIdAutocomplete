@@ -28,13 +28,16 @@ public class PartialIdAutocompleteConfig {
     private boolean collapseSingleChildNodes;
     private boolean onlySuggestNextSegments;
 
+    private String modVersion;
+
     private final Path configPath;
 
-    private PartialIdAutocompleteConfig(Properties properties, Path configPath, @Nullable String configVersion) {
+    private PartialIdAutocompleteConfig(Properties properties, Path configPath, @Nullable String configVersion, String modVersion) {
         idSegmentSeparatorRegex = properties.getProperty(ID_SEGMENT_SEPARATOR_REGEX_NAME);
         collapseSingleChildNodes = Boolean.parseBoolean(properties.getProperty(COLLAPSE_SINGLE_CHILD_NODES_NAME));
         onlySuggestNextSegments = Boolean.parseBoolean(properties.getProperty(ONLY_SUGGEST_NEXT_SEGMENTS_NAME));
         this.configPath = configPath;
+        this.modVersion = modVersion;
     }
 
     public String getIdSegmentSeparatorRegex() {
@@ -96,23 +99,17 @@ public class PartialIdAutocompleteConfig {
         properties.setProperty(COLLAPSE_SINGLE_CHILD_NODES_NAME, Boolean.toString(collapseSingleChildNodes));
         properties.setProperty(ONLY_SUGGEST_NEXT_SEGMENTS_NAME, Boolean.toString(onlySuggestNextSegments));
         try(var writer = new java.io.FileWriter(path.toFile())) {
-            writer.append('v').append(FabricLoader.getInstance()
-                    .getModContainer("partial_id_autocomplete")
-                    .orElseThrow()
-                    .getMetadata()
-                    .getVersion()
-                    .getFriendlyString()
-            ).append('\n');
+            writer.append('v').append(modVersion).append('\n');
             properties.store(writer, "Partial ID Autocomplete Config");
         } catch (java.io.IOException e) {
             PartialIdAutocomplete.LOGGER.error("Failed to save config file", e);
         }
     }
 
-    public static PartialIdAutocompleteConfig loadFromFile(Path path) {
+    public static PartialIdAutocompleteConfig loadFromFile(Path path, String modVersion) {
         final var file = path.toFile();
         if(!file.exists()) {
-            final var config = new PartialIdAutocompleteConfig(configDefaults, path, null);
+            final var config = new PartialIdAutocompleteConfig(configDefaults, path, null, modVersion);
             config.saveToFile(path);
             return config;
         }
@@ -129,10 +126,10 @@ public class PartialIdAutocompleteConfig {
             }
             final var properties = new Properties(configDefaults);
             properties.load(reader);
-            return new PartialIdAutocompleteConfig(properties, path, version);
+            return new PartialIdAutocompleteConfig(properties, path, version, modVersion);
         } catch (java.io.IOException e) {
             PartialIdAutocomplete.LOGGER.error("Failed to load config file", e);
-            return new PartialIdAutocompleteConfig(configDefaults, path, null);
+            return new PartialIdAutocompleteConfig(configDefaults, path, null, modVersion);
         }
     }
 }
