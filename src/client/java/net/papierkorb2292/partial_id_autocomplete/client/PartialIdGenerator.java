@@ -115,20 +115,9 @@ public final class PartialIdGenerator {
     }
 
     public static boolean areSuggestionsIds(Suggestions suggestions) {
-        return suggestions.getList().stream().allMatch(suggestion -> {
-           final var colonIndex = suggestion.getText().indexOf(':');
-           if(colonIndex == -1)
-               return false;
-           if(!Identifier.isPathValid(suggestion.getText().substring(colonIndex + 1)))
-               return false;
-           final var beforeColon = suggestion.getText().substring(0, colonIndex);
-           final String namespace;
-           if(beforeColon.startsWith("#"))
-                namespace = beforeColon.substring(1);
-           else
-                namespace = beforeColon;
-           return Identifier.isNamespaceValid(namespace);
-        });
+        return suggestions.getList().stream().allMatch(suggestion ->
+               suggestion.getText().matches(PartialIdAutocomplete.config.getIdValidatorRegex())
+        );
     }
 
     private static class OnlyChildMapper {

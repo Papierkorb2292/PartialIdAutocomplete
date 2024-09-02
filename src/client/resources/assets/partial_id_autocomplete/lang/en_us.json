@@ -2,6 +2,8 @@
   "partial_id_autocomplete.config.title": "Partial ID Autocomplete Config",
   "partial_id_autocomplete.config.id_segment_separator_regex": "ID Segment Separator Regex",
   "partial_id_autocomplete.config.id_segment_separator_regex.description": "The regex that is used to split an id into its segments",
+  "partial_id_autocomplete.config.id_validator_regex": "ID Validator Regex",
+  "partial_id_autocomplete.config.id_validator_regex.description": "The regex that is used to determine whether a suggestions is an id. Partial ids will only be suggested if all suggestions match this regex",
   "partial_id_autocomplete.config.collapse_single_child_nodes": "Collapse Single Child Nodes",
   "partial_id_autocomplete.config.collapse_single_child_nodes.description": "If enabled, nodes with only one child will not be suggested and their child will be suggested instead (even when \"Only Suggest Next Segments\" is enabled)",
   "partial_id_autocomplete.config.only_suggest_next_segments": "Only Suggest Next Segments",
