@@ -124,6 +124,8 @@ public final class PartialIdGenerator {
         private final Map<String, Either<ParentState, String>> onlyChildMap = new HashMap<>();
 
         public void addPotentialPartialIds(List<String> potentialPartialIds) {
+            if(potentialPartialIds.isEmpty())
+                return;
             final var last = potentialPartialIds.getLast();
             if(!onlyChildMap.containsKey(last))
                 onlyChildMap.put(last, Either.left(ParentState.HIDE));
