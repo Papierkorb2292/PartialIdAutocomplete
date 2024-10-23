@@ -43,7 +43,7 @@ public final class PartialIdGenerator {
         if(PartialIdAutocomplete.config.getOnlySuggestNextSegments()) {
             partialSuggestions = getPartialIdsOnlyNextSegment(currentInput);
         } else {
-            partialSuggestions = getPartialIdsAllSegments();
+            partialSuggestions = getPartialIdsAllSegments(currentInput);
         }
         for(final var partialSuggestion : partialSuggestions) {
             ((IsPartialIdSuggestionContainer)partialSuggestion).partial_id_autocomplete$setIsPartialIdSuggestion(true);
@@ -91,7 +91,7 @@ public final class PartialIdGenerator {
         return result;
     }
 
-    private Collection<Suggestion> getPartialIdsAllSegments() {
+    private Collection<Suggestion> getPartialIdsAllSegments(String currentInput) {
         final var partialIds = new LinkedHashSet<String>();
         final var onlyChildMapper = new OnlyChildMapper();
         for(final var idSuggestion : originalSuggestions.getList()) {
@@ -99,7 +99,12 @@ public final class PartialIdGenerator {
             if(PartialIdAutocomplete.config.getCollapseSingleChildNodes()) {
                 onlyChildMapper.addPotentialPartialIds(potentialPartialIds);
             }
-            partialIds.addAll(potentialPartialIds);
+            for(final var potentialPartialId : potentialPartialIds) {
+                if(currentInput.startsWith(potentialPartialId))
+                    // Don't suggest parent segments
+                    continue;
+                partialIds.add(potentialPartialId);
+            }
         }
 
         final var result = new ArrayList<Suggestion>();
