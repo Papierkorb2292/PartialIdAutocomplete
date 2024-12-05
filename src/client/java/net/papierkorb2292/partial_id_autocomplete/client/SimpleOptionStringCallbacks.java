@@ -56,6 +56,17 @@ public class SimpleOptionStringCallbacks implements SimpleOption.Callbacks<Strin
             );
             final var container = new ContainerWidget(x, y, width, 20, Text.literal("")) {
                 @Override
+                protected int getContentsHeightWithPadding() {
+                    return Math.max(height, label.getHeight() + textInput.getHeight());
+                }
+
+                @Override
+                protected double getDeltaYPerScroll() {
+                    // Doesn't really matter atm, but this seems appropriate
+                    return MinecraftClient.getInstance().textRenderer.fontHeight;
+                }
+
+                @Override
                 public List<? extends Element> children() {
                     return List.of(label, textInput);
                 }
