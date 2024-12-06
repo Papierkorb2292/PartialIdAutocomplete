@@ -1,4 +1,4 @@
-package net.papierkorb2292.partial_id_autocomplete.client;
+package net.papierkorb2292.partial_id_autocomplete;
 
 public interface IsPartialIdSuggestionContainer {
     boolean partial_id_autocomplete$isPartialIdSuggestion();

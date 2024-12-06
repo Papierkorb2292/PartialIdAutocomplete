@@ -1,9 +1,8 @@
-package net.papierkorb2292.partial_id_autocomplete.client;
+package net.papierkorb2292.partial_id_autocomplete;
 
 import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.datafixers.util.Either;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;

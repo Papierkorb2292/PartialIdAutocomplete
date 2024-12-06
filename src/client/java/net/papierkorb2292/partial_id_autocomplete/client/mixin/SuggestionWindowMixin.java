@@ -2,7 +2,7 @@ package net.papierkorb2292.partial_id_autocomplete.client.mixin;
 
 import com.mojang.brigadier.suggestion.Suggestion;
 import net.minecraft.client.gui.screen.ChatInputSuggestor;
-import net.papierkorb2292.partial_id_autocomplete.client.IsPartialIdSuggestionContainer;
+import net.papierkorb2292.partial_id_autocomplete.IsPartialIdSuggestionContainer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

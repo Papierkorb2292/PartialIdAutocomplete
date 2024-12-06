@@ -1,4 +1,4 @@
-package net.papierkorb2292.partial_id_autocomplete.client;
+package net.papierkorb2292.partial_id_autocomplete;
 
 import com.mojang.logging.LogUtils;
 import net.fabricmc.api.ModInitializer;

@@ -1,8 +1,5 @@
-package net.papierkorb2292.partial_id_autocomplete.client;
+package net.papierkorb2292.partial_id_autocomplete;
 
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.option.SimpleOption;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,10 +11,10 @@ import java.util.Properties;
 public class PartialIdAutocompleteConfig {
     public static final Path DEFAULT_CONFIG_PATH = Path.of("config/partial_id_autocomplete.properties");
 
-    private static final String ID_SEGMENT_SEPARATOR_REGEX_NAME = "id-segment-separator-regex";
-    private static final String ID_VALIDATOR_REGEX = "id-validator-regex";
-    private static final String COLLAPSE_SINGLE_CHILD_NODES_NAME = "collapse-single-child-nodes";
-    private static final String ONLY_SUGGEST_NEXT_SEGMENTS_NAME = "only-suggest-next-segments";
+    public static final String ID_SEGMENT_SEPARATOR_REGEX_NAME = "id-segment-separator-regex";
+    public static final String ID_VALIDATOR_REGEX = "id-validator-regex";
+    public static final String COLLAPSE_SINGLE_CHILD_NODES_NAME = "collapse-single-child-nodes";
+    public static final String ONLY_SUGGEST_NEXT_SEGMENTS_NAME = "only-suggest-next-segments";
     private static final Properties configDefaults = new Properties();
     static {
         configDefaults.setProperty(ID_SEGMENT_SEPARATOR_REGEX_NAME, "[/:.]");
@@ -77,43 +74,6 @@ public class PartialIdAutocompleteConfig {
     public void setOnlySuggestNextSegments(boolean onlySuggestNextSegments) {
         this.onlySuggestNextSegments = onlySuggestNextSegments;
         saveToFile(configPath);
-    }
-
-    public SimpleOption<?>[] asOptions() {
-        return new SimpleOption<?>[] {
-            new SimpleOption<>(
-                    convertNameToTranslationKey(ID_SEGMENT_SEPARATOR_REGEX_NAME),
-                    value -> Tooltip.of(Text.translatable(convertNameToTranslationKey(ID_SEGMENT_SEPARATOR_REGEX_NAME) + ".description")),
-                    (option, value) -> Text.literal(value),
-                    SimpleOptionStringCallbacks.INSTANCE,
-                    getIdSegmentSeparatorRegex(),
-                    this::setIdSegmentSeparatorRegex
-            ),
-            new SimpleOption<>(
-                    convertNameToTranslationKey(ID_VALIDATOR_REGEX),
-                    value -> Tooltip.of(Text.translatable(convertNameToTranslationKey(ID_VALIDATOR_REGEX) + ".description")),
-                    (option, value) -> Text.literal(value),
-                    SimpleOptionStringCallbacks.INSTANCE,
-                    getIdValidatorRegex(),
-                    this::setIdValidatorRegex
-            ),
-            SimpleOption.ofBoolean(
-                    convertNameToTranslationKey(COLLAPSE_SINGLE_CHILD_NODES_NAME),
-                    value -> Tooltip.of(Text.translatable(convertNameToTranslationKey(COLLAPSE_SINGLE_CHILD_NODES_NAME) + ".description")),
-                    getCollapseSingleChildNodes(),
-                    this::setCollapseSingleChildNodes
-            ),
-            SimpleOption.ofBoolean(
-                    convertNameToTranslationKey(ONLY_SUGGEST_NEXT_SEGMENTS_NAME),
-                    value -> Tooltip.of(Text.translatable(convertNameToTranslationKey(ONLY_SUGGEST_NEXT_SEGMENTS_NAME) + ".description")),
-                    getOnlySuggestNextSegments(),
-                    this::setOnlySuggestNextSegments
-            )
-        };
-    }
-
-    private static String convertNameToTranslationKey(String name) {
-        return "partial_id_autocomplete.config." + name.replace("-", "_");
     }
 
     public void saveToFile(Path path) {

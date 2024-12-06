@@ -16,7 +16,7 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"net.papierkorb2292.partial_id_autocomplete.client.PartialIdAutocomplete"
+			"net.papierkorb2292.partial_id_autocomplete.PartialIdAutocomplete"
 		],
 		"modmenu": [
 			"net.papierkorb2292.partial_id_autocomplete.client.PartialIdAutocompleteModMenu"
