@@ -56,6 +56,8 @@ public final class PartialIdGenerator {
         if(originalSuggestions.getList().size() <= 1)
             return Collections.emptyList();
 
+        final var noNamespaceInput = !currentInput.contains(":");
+
         final var inputSegmentCount = Math.max(
                 1,
                 Math.ceilDiv(
@@ -78,9 +80,12 @@ public final class PartialIdGenerator {
 
         final var result = new LinkedHashSet<Suggestion>();
         for(final var potentialPartialIds : potentialPartialIdsList) {
-            if(potentialPartialIds.size() < inputSegmentCount)
+            final var isDefaultNamespace = !potentialPartialIds.isEmpty() && potentialPartialIds.getFirst().equals("minecraft:");
+            // Used to skip over the `minecraft:` suggestion when the input omits the default `minecraft` namespace
+            final var segmentCountOffset = isDefaultNamespace && noNamespaceInput ? 1 : 0;
+            if(potentialPartialIds.size() < inputSegmentCount + segmentCountOffset)
                 continue;
-            final var potentialPartialId = potentialPartialIds.get(inputSegmentCount - 1);
+            final var potentialPartialId = potentialPartialIds.get(inputSegmentCount - 1 + segmentCountOffset);
             final var onlyChildMapperResolved = onlyChildMapper.getOnlyChildOrSelf(potentialPartialId);
             if(onlyChildMapperResolved == null) continue;
             result.add(new Suggestion(
@@ -100,8 +105,11 @@ public final class PartialIdGenerator {
                 onlyChildMapper.addPotentialPartialIds(potentialPartialIds);
             }
             for(final var potentialPartialId : potentialPartialIds) {
-                if(currentInput.startsWith(potentialPartialId))
-                    // Don't suggest parent segments
+                // Don't suggest parent segments
+                if(currentInput.startsWith(potentialPartialId)
+                        // Even when the input omits the default `minecraft` namespace
+                        || potentialPartialId.startsWith("minecraft:") && currentInput.startsWith(potentialPartialId.substring("minecraft:".length()))
+                )
                     continue;
                 partialIds.add(potentialPartialId);
             }
