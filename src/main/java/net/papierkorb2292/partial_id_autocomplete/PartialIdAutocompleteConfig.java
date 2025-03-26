@@ -1,5 +1,7 @@
 package net.papierkorb2292.partial_id_autocomplete;
 
+import net.fabricmc.loader.api.SemanticVersion;
+import net.fabricmc.loader.api.Version;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,7 +20,7 @@ public class PartialIdAutocompleteConfig {
     private static final Properties configDefaults = new Properties();
     static {
         configDefaults.setProperty(ID_SEGMENT_SEPARATOR_REGEX_NAME, "[/:.]");
-        configDefaults.setProperty(ID_VALIDATOR_REGEX, "#?([a-z0-9_.-]+:)?[a-z0-9/._-]+");
+        configDefaults.setProperty(ID_VALIDATOR_REGEX, "#?([a-zA-Z0-9_.-]+:)?[a-zA-Z0-9/._-]+");
         configDefaults.setProperty(COLLAPSE_SINGLE_CHILD_NODES_NAME, "true");
         configDefaults.setProperty(ONLY_SUGGEST_NEXT_SEGMENTS_NAME, "true");
     }
@@ -39,7 +41,19 @@ public class PartialIdAutocompleteConfig {
         onlySuggestNextSegments = Boolean.parseBoolean(properties.getProperty(ONLY_SUGGEST_NEXT_SEGMENTS_NAME));
         this.configPath = configPath;
         this.modVersion = modVersion;
-        if(configVersion != null && !configVersion.equals(modVersion)) {
+        if(configVersion == null)
+            return;
+        try {
+            var parsedConfigVersion = SemanticVersion.parse(configVersion);
+            if(parsedConfigVersion.compareTo((Version)SemanticVersion.parse("1.2.0")) < 0) {
+                var oldValidatorDefault = "#?([a-z0-9_.-]+:)?[a-z0-9/._-]+";
+                if(idValidatorRegex.equals(oldValidatorDefault))
+                    idValidatorRegex = configDefaults.getProperty(ID_VALIDATOR_REGEX);
+            }
+        } catch(Exception e) {
+            PartialIdAutocomplete.LOGGER.error("Couldn't load config file version, config file might now work as expected", e);
+        }
+        if(!configVersion.equals(modVersion)) {
             saveToFile(configPath);
         }
     }
