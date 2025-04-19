@@ -30,7 +30,7 @@ public class ChatInputSuggestorMixin {
         return suggestionsFuture.thenApply(suggestions -> {
             if(!PartialIdGenerator.areSuggestionsIds(suggestions))
                 return suggestions;
-            return new PartialIdGenerator(suggestions).getCompleteSuggestions(textField.getText().substring(suggestions.getRange().getStart()));
+            return new PartialIdGenerator(suggestions).getCompleteSuggestions(textField.getText().substring(suggestions.getRange().getStart()), true);
         });
     }
 }

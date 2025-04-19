@@ -37,22 +37,43 @@ public final class PartialIdGenerator {
     }
 
     public Suggestions getCompleteSuggestions(String currentInput) {
+        return getCompleteSuggestions(currentInput, false);
+    }
+
+    public Suggestions getCompleteSuggestions(String currentInput, boolean sortOnAllSegments) {
         final var completeSuggestionList = new ArrayList<>(originalSuggestions.getList());
-        final Collection<Suggestion> partialSuggestions;
         if(PartialIdAutocomplete.config.getOnlySuggestNextSegments()) {
-            partialSuggestions = getPartialIdsOnlyNextSegment(currentInput);
+            final var partialSuggestions = getPartialIdsOnlyNextSegment(currentInput);
+            markAsPartialIdSuggestions(partialSuggestions);
+            completeSuggestionList.addAll(0, partialSuggestions);
         } else {
-            partialSuggestions = getPartialIdsAllSegments(currentInput);
+            final var partialSuggestions = getPartialIdsAllSegments(currentInput);
+            markAsPartialIdSuggestions(partialSuggestions);
+            if(sortOnAllSegments)
+                addSuggestionsSorted(completeSuggestionList, partialSuggestions);
+            else
+                completeSuggestionList.addAll(0, partialSuggestions);
         }
-        for(final var partialSuggestion : partialSuggestions) {
-            ((IsPartialIdSuggestionContainer)partialSuggestion).partial_id_autocomplete$setIsPartialIdSuggestion(true);
-        }
-        completeSuggestionList.addAll(0, partialSuggestions);
         return new Suggestions(originalSuggestions.getRange(), completeSuggestionList);
     }
 
+    private void markAsPartialIdSuggestions(Collection<Suggestion> suggestions) {
+        for(final var partialSuggestion : suggestions) {
+            markAsPartialIdSuggestion(partialSuggestion);
+        }
+    }
+
+    private void markAsPartialIdSuggestion(Suggestion suggestion) {
+        ((IsPartialIdSuggestionContainer)suggestion).partial_id_autocomplete$setIsPartialIdSuggestion(true);
+    }
+
+    private boolean shouldSuggestionHidePotentialChild(Suggestion suggestion, Suggestion potentialChild, String currentInput) {
+        return potentialChild.getText().startsWith(suggestion.getText()) && currentInput.length() < suggestion.getText().length();
+    }
+
     private Collection<Suggestion> getPartialIdsOnlyNextSegment(String currentInput) {
-        if(originalSuggestions.getList().size() <= 1)
+        final var suggestionsList = originalSuggestions.getList();
+        if(suggestionsList.size() <= 1)
             return Collections.emptyList();
 
         final var noNamespaceInput = !currentInput.contains(":");
@@ -68,7 +89,27 @@ public final class PartialIdGenerator {
         final List<List<String>> potentialPartialIdsList = new ArrayList<>();
         final var onlyChildMapper = new OnlyChildMapper();
 
-        for(final var idSuggestion : originalSuggestions.getList()) {
+        var lastParent = -1;
+
+        for(int i = 0; i < suggestionsList.size(); i++) {
+            final var idSuggestion = suggestionsList.get(i);
+
+            // Hide suggestion when its text starts with the text of another suggestion
+            // Even though the suggestion might not be a proper child (separated by idSegmentSeparatorRegex), it should still be hidden in that case,
+            // such that it is not suggested before the shorter suggestion.
+            // Also mark the (improper) parent as partial id suggestion, such that when the player decides to complete it, the next child nodes are suggested.
+
+            // Since the suggestions are sorted, it is not necessary to go through all of them. If any suggestions hide the current suggestion,
+            // those include the last parent or the previous suggestion.
+            if(lastParent != -1 && shouldSuggestionHidePotentialChild(suggestionsList.get(lastParent), idSuggestion, currentInput)) {
+                // Was already marked as partial id suggestion
+                continue;
+            }
+            if(i > 0 && shouldSuggestionHidePotentialChild(suggestionsList.get(i - 1), idSuggestion, currentInput)) {
+                markAsPartialIdSuggestion(suggestionsList.get(i - 1));
+                lastParent = i - 1;
+                continue;
+            }
             final var potentialPartialIds = getPotentialPartialIds(idSuggestion.getText());
             potentialPartialIdsList.add(potentialPartialIds);
 
@@ -124,6 +165,15 @@ public final class PartialIdGenerator {
             ));
         }
         return result;
+    }
+
+    private void addSuggestionsSorted(List<Suggestion> dest, Collection<Suggestion> src) {
+        var i = 0;
+        for(final var suggestion : src) {
+            while(i <= dest.size() && dest.get(i).compareToIgnoreCase(suggestion) < 0)
+                i++;
+            dest.add(i, suggestion);
+        }
     }
 
     public static boolean areSuggestionsIds(Suggestions suggestions) {
