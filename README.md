@@ -18,7 +18,7 @@ and running `./gradlew build` in the root directory. The built mod will appear i
 
 ## Config
 
-The mod has a config file located at `config/partial_id_autocomple.properties` in your Minecraft
+The mod has a config file located at `config/partial_id_autocomplete.properties` in your Minecraft
 directory. The following config options are available, which can also be accessed through Mod Menu:
 - `id-segment-separator-regex`: The regex that is used to split an id into its segments.
 - `collapse-single-child-nodes`: If enabled, nodes with only one child will not be suggested and their child will be suggested instead (even when "Only Suggest Next Segments" is enabled)
