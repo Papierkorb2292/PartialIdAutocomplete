@@ -1,7 +1,7 @@
 package net.papierkorb2292.partial_id_autocomplete.client.mixin;
 
 import com.mojang.brigadier.suggestion.Suggestion;
-import net.minecraft.client.gui.screen.ChatInputSuggestor;
+import net.minecraft.client.gui.components.CommandSuggestions;
 import net.papierkorb2292.partial_id_autocomplete.IsPartialIdSuggestionContainer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -12,20 +12,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 
-@Mixin(ChatInputSuggestor.SuggestionWindow.class)
+@Mixin(CommandSuggestions.SuggestionsList.class)
 public class SuggestionWindowMixin {
 
-    @Shadow @Final private List<Suggestion> suggestions;
-    @Shadow private int selection;
-    @Shadow @Final ChatInputSuggestor field_21615;
+    @Shadow @Final private List<Suggestion> suggestionList;
+    @Shadow private int current;
+    @Shadow @Final
+    CommandSuggestions field_21615;
 
     @Inject(
-            method = "complete",
+            method = "useSuggestion",
             at = @At("TAIL")
     )
     private void partial_id_autocomplete$refreshSuggestionOnPartialCompletion(CallbackInfo ci) {
-        if(((IsPartialIdSuggestionContainer)suggestions.get(selection)).partial_id_autocomplete$isPartialIdSuggestion()) {
-            field_21615.refresh();
+        if(((IsPartialIdSuggestionContainer) suggestionList.get(current)).partial_id_autocomplete$isPartialIdSuggestion()) {
+            field_21615.updateCommandInfo();
         }
     }
 }

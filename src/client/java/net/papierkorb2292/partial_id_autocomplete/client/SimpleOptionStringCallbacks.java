@@ -2,83 +2,83 @@ package net.papierkorb2292.partial_id_autocomplete.client;
 
 import com.mojang.serialization.Codec;
 import joptsimple.util.RegexMatcher;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.gui.widget.ContainerWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.TextWidget;
-import net.minecraft.client.option.GameOptions;
-import net.minecraft.client.option.SimpleOption;
-import net.minecraft.text.Text;
-import net.papierkorb2292.partial_id_autocomplete.client.mixin.SimpleOptionAccessor;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.AbstractContainerWidget;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.StringWidget;
+import net.minecraft.client.Options;
+import net.minecraft.client.OptionInstance;
+import net.minecraft.network.chat.Component;
+import net.papierkorb2292.partial_id_autocomplete.client.mixin.OptionInstanceAccessor;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class SimpleOptionStringCallbacks implements SimpleOption.Callbacks<String> {
+public class SimpleOptionStringCallbacks implements OptionInstance.ValueSet<String> {
 
     public static final SimpleOptionStringCallbacks INSTANCE = new SimpleOptionStringCallbacks();
 
     private SimpleOptionStringCallbacks() {}
 
     @Override
-    public Function<SimpleOption<String>, ClickableWidget> getWidgetCreator(
-            SimpleOption.TooltipFactory<String> tooltipFactory,
-            GameOptions gameOptions,
+    public Function<OptionInstance<String>, AbstractWidget> createButton(
+            OptionInstance.TooltipSupplier<String> tooltipFactory,
+            Options gameOptions,
             int x,
             int y,
             int width,
             Consumer<String> changeCallback
     ) {
         return option -> {
-            final var textInput = new TextFieldWidget(
-                    MinecraftClient.getInstance().textRenderer,
+            final var textInput = new EditBox(
+                    Minecraft.getInstance().font,
                     width / 2,
                     0,
                     width / 2,
                     20,
-                    Text.literal("Regex input")
+                    Component.literal("Regex input")
             );
             textInput.setMaxLength(128);
-            textInput.setText(option.getValue());
-            final var label = new TextWidget(
+            textInput.setValue(option.get());
+            final var label = new StringWidget(
                     0,
                     0,
                     width / 2 - 5,
                     20,
-                    ((SimpleOptionAccessor)(Object)option).getText(),
-                    MinecraftClient.getInstance().textRenderer
+                    ((OptionInstanceAccessor)(Object)option).getCaption(),
+                    Minecraft.getInstance().font
             );
-            final var container = new ContainerWidget(x, y, width, 20, Text.literal("")) {
+            final var container = new AbstractContainerWidget(x, y, width, 20, Component.literal("")) {
                 @Override
-                protected int getContentsHeightWithPadding() {
+                protected int contentHeight() {
                     return Math.max(height, label.getHeight() + textInput.getHeight());
                 }
 
                 @Override
-                protected double getDeltaYPerScroll() {
+                protected double scrollRate() {
                     // Doesn't really matter atm, but this seems appropriate
-                    return MinecraftClient.getInstance().textRenderer.fontHeight;
+                    return Minecraft.getInstance().font.lineHeight;
                 }
 
                 @Override
-                public List<? extends Element> children() {
+                public List<? extends GuiEventListener> children() {
                     return List.of(label, textInput);
                 }
 
                 @Override
-                protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+                protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
                     label.render(context, mouseX, mouseY, delta);
                     textInput.render(context, mouseX, mouseY, delta);
                 }
 
                 @Override
-                protected void appendClickableNarrations(NarrationMessageBuilder builder) { }
+                protected void updateWidgetNarration(NarrationElementOutput builder) { }
 
                 @Override
                 public void setX(int x) {
@@ -96,9 +96,9 @@ public class SimpleOptionStringCallbacks implements SimpleOption.Callbacks<Strin
                     super.setY(y);
                 }
             };
-            container.setTooltip(tooltipFactory.apply(option.getValue()));
-            textInput.setChangedListener(newText -> {
-                option.setValue(newText);
+            container.setTooltip(tooltipFactory.apply(option.get()));
+            textInput.setResponder(newText -> {
+                option.set(newText);
                 changeCallback.accept(newText);
                 container.setTooltip(tooltipFactory.apply(newText));
             });
@@ -107,7 +107,7 @@ public class SimpleOptionStringCallbacks implements SimpleOption.Callbacks<Strin
     }
 
     @Override
-    public Optional<String> validate(String value) {
+    public Optional<String> validateValue(String value) {
         return Optional.of(value);
     }
 

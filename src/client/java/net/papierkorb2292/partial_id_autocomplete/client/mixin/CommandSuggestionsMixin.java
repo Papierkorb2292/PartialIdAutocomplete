@@ -2,8 +2,8 @@ package net.papierkorb2292.partial_id_autocomplete.client.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.brigadier.suggestion.Suggestions;
-import net.minecraft.client.gui.screen.ChatInputSuggestor;
-import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.gui.components.CommandSuggestions;
+import net.minecraft.client.gui.components.EditBox;
 import net.papierkorb2292.partial_id_autocomplete.PartialIdGenerator;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -12,14 +12,14 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.concurrent.CompletableFuture;
 
-@Mixin(ChatInputSuggestor.class)
-public class ChatInputSuggestorMixin {
+@Mixin(CommandSuggestions.class)
+public class CommandSuggestionsMixin {
 
     @Shadow @Final
-    TextFieldWidget textField;
+    EditBox input;
 
     @ModifyExpressionValue(
-            method = "refresh",
+            method = "updateCommandInfo",
             at = @At(
                     value = "INVOKE",
                     target = "Lcom/mojang/brigadier/CommandDispatcher;getCompletionSuggestions(Lcom/mojang/brigadier/ParseResults;I)Ljava/util/concurrent/CompletableFuture;",
@@ -30,7 +30,7 @@ public class ChatInputSuggestorMixin {
         return suggestionsFuture.thenApply(suggestions -> {
             if(!PartialIdGenerator.areSuggestionsIds(suggestions))
                 return suggestions;
-            return new PartialIdGenerator(suggestions).getCompleteSuggestions(textField.getText().substring(suggestions.getRange().getStart()), true);
+            return new PartialIdGenerator(suggestions).getCompleteSuggestions(input.getValue().substring(suggestions.getRange().getStart()), true);
         });
     }
 }
