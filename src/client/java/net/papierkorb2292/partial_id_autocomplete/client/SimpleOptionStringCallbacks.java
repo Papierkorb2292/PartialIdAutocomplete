@@ -4,12 +4,9 @@ import com.mojang.serialization.Codec;
 import joptsimple.util.RegexMatcher;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.AbstractContainerWidget;
-import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.Options;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.network.chat.Component;
@@ -54,7 +51,7 @@ public class SimpleOptionStringCallbacks implements OptionInstance.ValueSet<Stri
                     ((OptionInstanceAccessor)(Object)option).getCaption(),
                     Minecraft.getInstance().font
             );
-            final var container = new AbstractContainerWidget(x, y, width, 20, Component.literal("")) {
+            final var container =   new AbstractContainerWidget(x, y, width, 20, Component.literal(""), AbstractScrollArea.defaultSettings(Minecraft.getInstance().font.lineHeight)) {
                 @Override
                 protected int contentHeight() {
                     return Math.max(height, label.getHeight() + textInput.getHeight());

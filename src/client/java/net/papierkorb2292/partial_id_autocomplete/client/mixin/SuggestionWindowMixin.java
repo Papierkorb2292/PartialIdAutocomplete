@@ -18,7 +18,7 @@ public class SuggestionWindowMixin {
     @Shadow @Final private List<Suggestion> suggestionList;
     @Shadow private int current;
     @Shadow @Final
-    CommandSuggestions field_21615;
+    CommandSuggestions this$0;
 
     @Inject(
             method = "useSuggestion",
@@ -26,7 +26,7 @@ public class SuggestionWindowMixin {
     )
     private void partial_id_autocomplete$refreshSuggestionOnPartialCompletion(CallbackInfo ci) {
         if(((IsPartialIdSuggestionContainer) suggestionList.get(current)).partial_id_autocomplete$isPartialIdSuggestion()) {
-            field_21615.updateCommandInfo();
+            this$0.updateCommandInfo();
         }
     }
 }
