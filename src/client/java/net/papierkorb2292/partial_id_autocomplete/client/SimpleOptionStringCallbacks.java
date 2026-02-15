@@ -92,6 +92,17 @@ public class SimpleOptionStringCallbacks implements OptionInstance.ValueSet<Stri
                     textInput.setY(deltaY + textInput.getY());
                     super.setY(y);
                 }
+
+                // As of 26.1, focusing nexted container widgets doesn't work, because the child container is unfocused and quickly refocused,
+                // which doesn't refocus any grand-children. This fixes that
+                @Override
+                public void setFocused(boolean focused) {
+                    super.setFocused(focused);
+                    if(focused) {
+                        setFocused(textInput);
+                        textInput.setFocused(true);
+                    }
+                }
             };
             container.setTooltip(tooltipFactory.apply(option.get()));
             textInput.setResponder(newText -> {
