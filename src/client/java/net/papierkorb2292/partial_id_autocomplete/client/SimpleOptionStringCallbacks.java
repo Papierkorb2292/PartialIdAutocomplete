@@ -1,9 +1,8 @@
 package net.papierkorb2292.partial_id_autocomplete.client;
 
 import com.mojang.serialization.Codec;
-import joptsimple.util.RegexMatcher;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -69,9 +68,9 @@ public class SimpleOptionStringCallbacks implements OptionInstance.ValueSet<Stri
                 }
 
                 @Override
-                protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
-                    label.render(context, mouseX, mouseY, delta);
-                    textInput.render(context, mouseX, mouseY, delta);
+                protected void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+                    label.extractRenderState(context, mouseX, mouseY, delta);
+                    textInput.extractRenderState(context, mouseX, mouseY, delta);
                 }
 
                 @Override
