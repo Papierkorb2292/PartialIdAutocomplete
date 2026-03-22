@@ -20,7 +20,7 @@ public class PartialIdAutocompleteConfig {
     private static final Properties configDefaults = new Properties();
     static {
         configDefaults.setProperty(ID_SEGMENT_SEPARATOR_REGEX_NAME, "[/:.]");
-        configDefaults.setProperty(ID_VALIDATOR_REGEX, "#?([a-zA-Z0-9_.-]+:)?[a-zA-Z0-9/._-]+");
+        configDefaults.setProperty(ID_VALIDATOR_REGEX, "#?([a-zA-Z0-9_.-]+:)?[a-zA-Z0-9/.*_-]+");
         configDefaults.setProperty(COLLAPSE_SINGLE_CHILD_NODES_NAME, "true");
         configDefaults.setProperty(ONLY_SUGGEST_NEXT_SEGMENTS_NAME, "true");
     }
@@ -43,10 +43,15 @@ public class PartialIdAutocompleteConfig {
         this.modVersion = modVersion;
         if(configVersion == null)
             return;
+        final var modConfigVersion = configVersion.split("\\+")[0];
         try {
-            var parsedConfigVersion = SemanticVersion.parse(configVersion);
+            var parsedConfigVersion = SemanticVersion.parse(modConfigVersion);
             if(parsedConfigVersion.compareTo((Version)SemanticVersion.parse("1.2.0")) < 0) {
                 var oldValidatorDefault = "#?([a-z0-9_.-]+:)?[a-z0-9/._-]+";
+                if(idValidatorRegex.equals(oldValidatorDefault))
+                    idValidatorRegex = configDefaults.getProperty(ID_VALIDATOR_REGEX);
+            } else if(parsedConfigVersion.compareTo((Version)SemanticVersion.parse("1.2.2")) < 0) {
+                var oldValidatorDefault = "#?([a-zA-Z0-9_.-]+:)?[a-zA-Z0-9/._-]+";
                 if(idValidatorRegex.equals(oldValidatorDefault))
                     idValidatorRegex = configDefaults.getProperty(ID_VALIDATOR_REGEX);
             }
