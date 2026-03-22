@@ -20,10 +20,10 @@ and running `./gradlew build` in the root directory. The built mod will appear i
 
 The mod has a config file located at `config/partial_id_autocomplete.properties` in your Minecraft
 directory. The following config options are available, which can also be accessed through Mod Menu:
-- `id-segment-separator-regex`: The regex that is used to split an id into its segments.
-- `collapse-single-child-nodes`: If enabled, nodes with only one child will not be suggested and their child will be suggested instead (even when "Only Suggest Next Segments" is enabled)
-- `only-suggest-next-segments`: If enabled, only the next segment of the id will be suggested (based on the segments that have already been entered). If "Collapse Single Child Nodes" is enabled as well, deeper segments are also suggested, in case they are the only child of their parent.
-- `id-validator-regex`: The regex that is used to determine whether a suggestion is an id. Partial ids will only be suggested if all suggestions match this regex
+- `id-segment-separator-regex`: The regex that is used to split an id into its segments. Defaults to `[/:.]`
+- `collapse-single-child-nodes`: If enabled, nodes with only one child will not be suggested and their child will be suggested instead (even when "Only Suggest Next Segments" is enabled). Defaults to `true`
+- `only-suggest-next-segments`: If enabled, only the next segment of the id will be suggested (based on the segments that have already been entered). If "Collapse Single Child Nodes" is enabled as well, deeper segments are also suggested, in case they are the only child of their parent. Defaults to `true`
+- `id-validator-regex`: The regex that is used to determine whether a suggestion is an id. Partial ids will only be suggested if all suggestions match this regex. Defaults to `#?([a-zA-Z0-9_.-]+:)?[a-zA-Z0-9/.*_-]+`
 
 ## License
 
