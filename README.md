@@ -1,5 +1,7 @@
 # Partial ID Autocomplete Minecraft Mod
 
+[<img src="https://badges.moddingx.org/modrinth/downloads/JYqKX1nZ?style=flat" alt="Downloads on Modrinth"><img src="https://badges.moddingx.org/modrinth/versions/JYqKX1nZ?style=flat" alt="Versions on Modrinth">](https://modrinth.com/mod/partialidautocomplete)
+
 This Minecraft Fabric mod extends the autocompletion for id arguments in commands
 for completing ids only up to a certain segment.
 
