@@ -10,10 +10,10 @@ import net.minecraft.client.Options;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.network.chat.Component;
 import net.papierkorb2292.partial_id_autocomplete.client.mixin.OptionInstanceAccessor;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class SimpleOptionStringCallbacks implements OptionInstance.ValueSet<String> {
@@ -24,12 +24,12 @@ public class SimpleOptionStringCallbacks implements OptionInstance.ValueSet<Stri
 
     @Override
     public Function<OptionInstance<String>, AbstractWidget> createButton(
-            OptionInstance.TooltipSupplier<String> tooltipFactory,
-            Options gameOptions,
-            int x,
-            int y,
-            int width,
-            Consumer<String> changeCallback
+            final OptionInstance.@NonNull TooltipSupplier<String> tooltipFactory,
+             @NonNull Options options,
+             final int x,
+             final int y,
+             final int width,
+             final OptionInstance.@NonNull ValueUpdateListener<? super String> changeCallback
     ) {
         return option -> {
             final var textInput = new EditBox(
@@ -106,7 +106,7 @@ public class SimpleOptionStringCallbacks implements OptionInstance.ValueSet<Stri
             container.setTooltip(tooltipFactory.apply(option.get()));
             textInput.setResponder(newText -> {
                 option.set(newText);
-                changeCallback.accept(newText);
+                changeCallback.valueChanged(newText);
                 container.setTooltip(tooltipFactory.apply(newText));
             });
             return container;
